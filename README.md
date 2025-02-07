@@ -14,9 +14,9 @@ There are a few things that are needed before you get started:
 - RStudio desktop client is required to tweak some settings to work for your group
 - I would also recommend GitHub desktop, so that it's easy to push changes when modifying some of the R scripts.
 
-### Step 2. Fork your own copy of the tool
+### Step 2. Derive your own private copy of the tool
 
-In the upper-right hand corner of the screen (between the button that says "watch" and "star"), derive a copy of the SDM tool onto your own GitHub account. Please note, that this is going to be where Railway retrieves all app data from, and deploys directly off of the GitHub! You should notice that there is a dockerfile within the files on GitHub. We'll jump to Railway first before modifying any R scripts.
+On this GitHub page, click on the green **<> Code button** drop-down button, and **download the repository as a ZIP file**. From here, you want to extract all the contents of that ZIP folder into your own, private blank repository. I would recommend using the GitHub desktop client for this, since it is pretty straight forward to create an empty repository, to which you can simply drop all the SDM files into! Make sure that you keep the repository private, otherwise your **database will be visible to the public**! It is for that reason also that I don't recommend you fork a copy from the Seed-Database-Manager-GE repo, since it is public! In any case, this repository you will set up is going to be where Railway retrieves all app data from, and deploys directly off of GitHub!
 
 ### Step 3. Creating a Postgres database on Railway
 
