@@ -1,0 +1,6 @@
+Plant Name,Source (Internal or External),Proximal Source,ID,Additional ID,Species,Researcher,Notes
+PD3-example common accession name,External,University of Arizona-external group where seed was sent from,PI511353-identification code or number originally associated with the received seed,SA3778-optional space for any other IDs ,Gossypium hirsutum-scientific name,schafe43-Purdue career ID to whom the seed is relevant to,
+PD3,Internal,WL0001-internal database entry where seed was grown out and collected from,Gh22_18-example short term identification given by undergrad researcher,,Gossypium hirsutum,schafe43,
+Pronto,External,University of Arizona,PI529594,SA1540,Gossypium hirsutum,schafe43,Potentially contaminated seed based on phenotype of progeny-optional field for indivudual information on each entry
+Pronto,Internal,WL0003,Gh22_19,,Gossypium hirsutum,schafe43,Plant had unusual leaf shape when grown out
+delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!,delete all rows above except the header!

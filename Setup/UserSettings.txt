@@ -1,0 +1,12 @@
+User Settings File
+dbname=your-database-name
+host=your-database-host
+port=12345
+user=your-database-user
+password=your-database-password
+codeTag=TAG
+codeDigits=4
+groupImageHeight=112
+groupImageWidth=281
+groupName=your-group-name
+useImage=TRUE281
