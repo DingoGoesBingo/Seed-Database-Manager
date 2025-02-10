@@ -93,7 +93,7 @@ Once you've made the desired changes, save the text file and close!
 
 #### Step 7.2. Using group branding
 
-To change the image you can simply replace the image in the Seed-Database-Manager-GE/Application/www folder with the desired image for you lab or group, just make sure the image is renamed to **group.png**! You may find that the **height** and **width** settings may not work well, so feel free to adjust those to the proper width and height of your selected image within the same **UserSettings.txt** file by modifying the following lines:
+To change the image you can simply replace **group.png** in the Seed-Database-Manager-GE/Setup/groupImage folder with the desired image for you lab or group, just make sure the image you choose is renamed to **group.png**! You may find that the **height** and **width** settings may not work well, so feel free to adjust those to the proper width and height of your selected image within the same **UserSettings.txt** file by modifying the following lines:
 ```
 groupImageHeight=112
 groupImageWidth=281
@@ -118,8 +118,8 @@ Once you've done this, you want to go back to Railway and open the same project 
 
 The dockerfile *should* be detected and start building the image, which usually takes around 15-20 minutes since it has to download a bunch of dependencies. I don't think you should need to change anything in the dockerfile, but if it keeps crashing, you may need to make changes to the dockerfile itself. 
 
-To prevent some headaches later, I would recommend making sure that both the PostgreSQL and GitHub object in railway are being hosted in the same region. This can be accessed in the settings for each of these on Railway.
+To prevent some headaches later, I would recommend making sure that both the PostgreSQL and GitHub object in railway are being hosted in the same region (the build sometimes crashes migrating the host). This can be accessed in the settings for each of these on Railway.
 
 ### Step 9. Accessing the tool!
 
-Once it finishes building, it is now accessable on your browser! The link can be found by clicking the GitHub object on Railway immediately under the deployments tab. You can change this link by navigating to the settings tab and scrolling down to the networking section! 
+Once it finishes building, it is now accessable on your browser! The link can be found by clicking the GitHub object on Railway, found immediately under the *deployments* tab. You can change this link by navigating to the settings tab and scrolling down to the networking section! 
