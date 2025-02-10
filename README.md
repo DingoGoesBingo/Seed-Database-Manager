@@ -67,9 +67,9 @@ The setup script will have prompted you to set up users initially, but if you fi
 
 Once again, you will then need to enter the desired username into the console at the bottom of your screen. Afterwards, a pop-up window will appear prompting you to enter in a password that is **at least 8 characters in length**. After completing this, you should see the user in the **users** table.Please write your password down somewhere, as there is no way to view it on Railway!
 
-#### Step 6.1. Adding white-listed researchers and species
+#### Step 6.1. Adding researchers and species
 
-The tables that were set up for **species** and **researchers** are meant to make registration of new entries as straight-forward and error free as possible. To add new researchers and species to these tables, it is easiest to do so directly in Railway. In the Postgres object, navigate the data tab and you should see the 4 tables we created earlier. From there you can individually add new rows to the **species** and **users** table. For example, if you have three species that you work with, you would want to add each species scientific name as a new row. Similarly, if you have 10 researchers in your workgroup, you would want to add each researcher individually. Note that researchers do not have access to the database and are simply used for organizing *who* the seed germplasm is relevant to!
+The tables that were set up for **species** and **researchers** are meant to make registration of new entries as straight-forward and error free as possible. To add new researchers and species to these tables, it is easiest to do so directly in Railway. In the Postgres object, navigate the *data* tab and you should see the 4 tables we created earlier. From there you can individually add new rows to the **species** and **researchers** table. For example, if you have three species that you work with, you would want to add each species scientific name as a new row. Similarly, if you have 10 researchers in your workgroup, you would want to add each researcher individually. Note that researchers do not have access to the database and are simply used for organizing *who* the seed germplasm is relevant to!
 
 ### Step 7. Adding flair!
 
