@@ -28,7 +28,7 @@ Once you've successfully created a Postgres object (the one with the elephant lo
 
 ### Step 4. Completing the setup file
 
-Now we're going to be modifiying a basic text file and running a setup R script. Assuming you're using GitHub desktop, clone the forked SDM GitHub to you local device and navigate to the file location for the project. From there, go to Seed-Database-Manager-GE/Setup and open **UserSettings.txt**. This file contains parameters for connecting to the database, along with a few customization parameters (we'll get to those later in the README)!
+Now we're going to be modifiying a basic text file and running a setup R script. Assuming you're using GitHub desktop, clone your repository to your local device and navigate to the file location for the project. From there, go to Seed-Database-Manager-GE/Setup and open **UserSettings.txt**. This file contains parameters for connecting to the database, along with a few customization parameters (we'll get to those later in the README)!
 
 For now, we will need to change the following parameters:
 
