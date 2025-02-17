@@ -20,7 +20,7 @@ dbcollapse = function(data){
   data_sortlist = c()
   for(i in 1:nrow(data)){
 
-    data_sortlist = c(data_sortlist, paste(data[i,], collapse = "_"))
+    data_sortlist = c(data_sortlist, paste(data[i,], collapse = "_|-")) # Need a complex divider that won't realistically be used in IDs
 
   }
 

@@ -40,7 +40,7 @@
 # and short escription of the seed entry.           #
 #####################################################
 
-Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA, Add_ID_2 = NA, Species=NA, Researcher=NA, Desc=NA, Batch=FALSE){
+Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA, Add_ID_2 = NA, Species=NA, Researcher=NA, Harvest=NA, Desc=NA, Batch=FALSE){
   
   # Step 1.)    Load in the database 
   setwd(getwd())
@@ -65,7 +65,7 @@ Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA
   
   # Step 4.)    Enter the supplied information into a new row in the database
   
-  Database[Existing.Entries+1, ] = c(rep(NA, 10))
+  Database[Existing.Entries+1, ] = c(rep(NA, ncol(Database)))
   
   Database$Code[(Existing.Entries+1)] = WL.Code # Novel code is always entered into DB
   
@@ -114,6 +114,12 @@ Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA
     
   } 
   
+  if(exists("Harvest") == TRUE){ # For each other variable, it is checked to see if they were entered.
+    
+    Database$Harvest[Existing.Entries+1] = Harvest
+    
+  }
+  
   if(exists("Desc") == TRUE){ # For each other variable, it is checked to see if they were entered.
     
     Database$Desc[Existing.Entries+1] = Desc
@@ -130,7 +136,7 @@ Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA
   
   con = concon() # Accesses the database from Railway's server
   
-  dbRegister(con, WL.Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, as.character(Sys.Date()), Desc)
+  dbRegister(con, WL.Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, Harvest, as.character(Sys.Date()), Desc)
   
   # Step 6.)    Print detailed report to the user / report code to the print function (All moved to a new function)
   
@@ -210,7 +216,7 @@ Lookup = function(query, savepoint = "../UserQuery"){
   setwd(getwd())
   Database = as.data.frame(read.csv("../Database/WL_Database.csv"))
   
-  return.table = as.data.frame(matrix(nrow = 0, ncol = 10))
+  return.table = as.data.frame(matrix(nrow = 0, ncol = 11))
   names(return.table) = names(Database)
   
   # Step 2.)    Analyze each row to match query
@@ -316,6 +322,7 @@ RegisterBatch = function(template, Desc){
              Add_ID_2 = template$Additional.ID[g],
              Species = template$Species[g],
              Researcher = template$Researcher[g],
+             Harvest = template$Harvest[g],
              Desc = UpdatedDesc,
              Batch = TRUE)
     
@@ -570,7 +577,7 @@ dbGet = function(con) {
   
   data = dbGetQuery(con, query)
   
-  colnames(data) = c("Code", "Accession", "Source", "Prox_Source", "Add_ID_1", "Add_ID_2", "Species", "Researcher", "DoE", "Desc")
+  colnames(data) = c("Code", "Accession", "Source", "Prox_Source", "Add_ID_1", "Add_ID_2", "Species", "Researcher", "Harvest", "DoE", "Desc")
   
   write.csv(data, "../Database/WL_Database.csv", row.names = FALSE)
   
@@ -590,7 +597,7 @@ dbGet = function(con) {
 # database in Railway.                              #
 #####################################################
 
-dbRegister = function(con, Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, DoE, Desc) {
+dbRegister = function(con, Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, Harvest, DoE, Desc) {
   
   # Load in the require packages
   
@@ -602,12 +609,12 @@ dbRegister = function(con, Code, Accession, Source, Prox_Source, Add_ID_1, Add_I
   
   # SQL query -- needed to replace the '' with $10, might need to include it as well
   query = "
-    INSERT INTO wl_database (code, accession_name, source, prox_source, add_id_1, add_id_2, species, researcher, doe, des)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+    INSERT INTO wl_database (code, accession_name, source, prox_source, add_id_1, add_id_2, species, researcher, harvest, doe, des)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
   "
   
   # Execute the query
-  dbExecute(con, query, params = list(Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, DoE, Desc))
+  dbExecute(con, query, params = list(Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, Harvest, DoE, Desc))
   
 }
 

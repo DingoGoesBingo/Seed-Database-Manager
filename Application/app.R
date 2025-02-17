@@ -210,6 +210,16 @@ ui = fluidPage(theme = shinytheme("yeti"),
       
       fluidRow(
         
+        column(4, uiOutput("Harvest_Year")),
+        
+        column(4, uiOutput("Harvest_Month")),
+        
+        column(4, uiOutput("Harvest_Day"))
+        
+      ),
+      
+      fluidRow(
+        
         column(4, uiOutput("Username")),
         
         column(4, uiOutput("Password")),
@@ -337,16 +347,16 @@ server = function(input, output) {
     
     # data[which(grepl(tolower(input$DTSearchRangeLeft), tolower(dbcollapse(data)))):which(grepl(tolower(input$DTSearchRangeRight), tolower(dbcollapse(data)))),]
     data[which(grepl(tolower(input$DTSearchRangeLeft), tolower(
-      unlist(strsplit(dbcollapse(data), "_"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_"))),10)]
+      unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]
     ))):which(grepl(tolower(input$DTSearchRangeRight), tolower(
-      unlist(strsplit(dbcollapse(data), "_"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_"))),10)]
+      unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]
     ))),]
     
   )
   
   dataset_sub_multi = reactive(
 
-    data[c(vecposcall(tolower(input$DTSearchMulti), tolower(unlist(strsplit(dbcollapse(data), "_"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_"))),10)]))),]
+    data[c(vecposcall(tolower(input$DTSearchMulti), tolower(unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]))),]
 
   )
   
@@ -433,7 +443,7 @@ server = function(input, output) {
     },
     
     options = list(dom = "itlp", columnDefs = list(list(
-    targets = 10,
+    targets = 11,
     render = JS(
       "function(data, type, row, meta) {",
       "return type === 'display' && data.length > 6 ?",
@@ -764,6 +774,36 @@ server = function(input, output) {
     
   })
   
+  output$Harvest_Year = renderUI({
+    
+    if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
+      
+      selectInput("Harvest_Year", label = h4("Year of harvest? (if known)"), choices = as.list(c("",as.numeric(unlist(strsplit(as.character(Sys.Date()), "-"))[1]):1925)))
+      
+    } 
+    
+  })
+  
+  output$Harvest_Month = renderUI({
+    
+    if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
+      
+      selectInput("Harvest_Month", label = h4("Month of harvest? (if known)"), choices = as.list(c("", "January - 01", "February - 02", "March - 03", "April - 04", "May - 05", "June - 06", "July - 07", "August - 08", "September - 09", "October - 10", "November - 11", "December - 12")))
+      
+    } 
+    
+  })
+  
+  output$Harvest_Day = renderUI({
+    
+    if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
+      
+      selectInput("Harvest_Day", label = h4("Day of harvest? (if known)"), choices = as.list(c("",1:31)))
+      
+    } 
+    
+  })
+  
   output$Researcher = renderUI({
     
     if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
@@ -857,9 +897,42 @@ server = function(input, output) {
       
     } else {
       
-      showNotification("Batch registration is running. This may take a second!", duration = 5)
+      showNotification("Registration is running. This may take a second!", duration = 5)
       
-      Register(Accession = input$Accession, Source = input$Source, Prox_Source = input$Prox_Source, Add_ID_1 = input$Add_ID_1, Add_ID_2 = input$Add_ID_2, Species = input$Species,  Researcher = input$Researcher, Desc = input$Desc)
+      # Populate harvest date, if applicable
+      if(input$Harvest_Year == ""){
+        
+        # Year not given, automatically set date to empty
+        Harvest_Date = ""
+        
+      } else {
+        
+        # Year given, but no month
+        if(input$Harvest_Month == ""){
+          
+          # Assume January
+          Harvest_Date = paste(input$Harvest_Year, "01", "01", sep = "-")
+          
+        } else {
+          
+          # Year & month given, but day not
+          if(input$Harvest_Day == ""){
+            
+            # Assume the first
+            Harvest_Date = paste(input$Harvest_Year, unlist(strsplit(input$Harvest_Month, " - "))[2], "01", sep = "-")
+            
+          } else {
+            
+            # All information given
+            Harvest_Date = paste(input$Harvest_Year, unlist(strsplit(input$Harvest_Month, " - "))[2], input$Harvest_Day, sep = "-")
+            
+          }
+          
+        }
+        
+      }
+      
+      Register(Accession = input$Accession, Source = input$Source, Prox_Source = input$Prox_Source, Add_ID_1 = input$Add_ID_1, Add_ID_2 = input$Add_ID_2, Species = input$Species,  Harvest = Harvest_Date, Researcher = input$Researcher, Desc = input$Desc)
       
       shinyalert("Registration Complete", "The application will refresh shortly to show your changes.", type = "info")
       

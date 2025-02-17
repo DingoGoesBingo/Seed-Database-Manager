@@ -31,6 +31,7 @@ generate_data_table = function(con) {
       add_id_2 TEXT,
       species TEXT,
       researcher TEXT,
+      harvest TEXT,
       doe TEXT,
       des TEXT
     );

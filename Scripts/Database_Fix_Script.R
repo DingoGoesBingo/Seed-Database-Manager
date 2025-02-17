@@ -4,7 +4,7 @@ datafix = function(data){
   
   # Fix the issue with duplication of the accession name column
   
-  if("accession_name" %in% tolower(names(data)) && ncol(data) > 10){
+  if("accession_name" %in% tolower(names(data)) && ncol(data) > 11){
     
     for(jackal in 1:nrow(data)){
       
@@ -26,7 +26,7 @@ datafix = function(data){
   
   data = data[order(data$tmpcol),] #order numerically
   
-  data = data[,1:10]# Remove column
+  data = data[,-ncol(data)]# Remove column
   
   # Overwrites existing CSV file
   
