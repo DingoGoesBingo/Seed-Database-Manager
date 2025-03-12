@@ -303,11 +303,22 @@ RegisterBatch = function(template, Desc){
     datafix(as.data.frame(read.csv("../Database/WL_Database.csv")))
     
     # Looking for notes, if any
-    if(template$Notes[g] != ""){
+    if(is.na(template$Notes[g]) == FALSE){
       
-      # Add them to description field
-      UpdatedDesc = paste(template$Notes[g], Desc, sep = "-")
+      # Isn't NA, now see if it is blank
+      if(template$Notes[g] != ""){
+        
+        # Add them to description field
+        UpdatedDesc = paste(template$Notes[g], Desc, sep = "-")
+        
+      } else {
+        
+        # Just use description field
+        UpdatedDesc = Desc
+        
+      }
       
+      # It's NA, so just use description
     } else {
       
       # Just use description field

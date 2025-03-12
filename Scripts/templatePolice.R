@@ -3,6 +3,9 @@
 
 templatePolice = function(template, rList, sList){
   
+  rList = rList[which(rList != "")]
+  sList = sList[which(sList != "")]
+  
   # Check to make sure ID entries aren't missing
   if("" %in% template$ID == TRUE){
     
