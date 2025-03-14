@@ -11,8 +11,8 @@ Deploying the tool for yourself is fairly straight-forward! Please follow the st
 There are a few things that are needed before you get started:
 - A GitHub account
 - An account on www.Railway.com, which can be simply done by logging onto the website using your GitHub account (Recommended! If your institution has alternate methods for delploying Shiny R applications and databases though, that would likely require extra work to get running)
-- RStudio desktop client is required to run set-up code!
-- I would also recommend GitHub desktop, so that it's easy to push changes when modifying some of the R scripts.
+- RStudio desktop client, required to run set-up code.
+- I would also recommend GitHub desktop, so that it's easy to push changes during the set-up.
 
 ### Step 2. Derive your own private copy of the tool
 
