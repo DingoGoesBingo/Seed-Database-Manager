@@ -16,7 +16,7 @@ There are a few things that are needed before you get started:
 
 ### Step 2. Derive your own private copy of the tool
 
-On this GitHub page, click on the green **<> Code button** drop-down button, and **download the repository as a ZIP file**. From here, you want to extract all the contents of that ZIP folder into your own, private blank repository. I would recommend using the GitHub desktop client for this, since it is pretty straight forward to create an empty repository, to which you can simply drop all the SDM files into! Make sure that you keep the repository private, otherwise your **database will be visible to the public**! It is for that reason also that I don't recommend you fork a copy from the Seed-Database-Manager-GE repo, since it is public! In any case, this repository you will set up is going to be where Railway retrieves all app data from, and deploys directly off of GitHub!
+On this GitHub page, click on the green **<> Code** drop-down button, and **download the repository as a ZIP file**. From here, you want to extract all the contents of that ZIP folder into your own, private blank repository. I would recommend using the GitHub desktop client for this, since it is pretty straight forward to create an empty repository, to which you can simply drop all the SDM files into! Make sure that you keep the repository private, otherwise your **database will be visible to the public**! It is for that reason also that I don't recommend you fork a copy from the Seed-Database-Manager-GE repo, since it is public! In any case, this repository you will set up is going to be where Railway retrieves all app data from, and deploys directly off of GitHub!
 
 ### Step 3. Creating a Postgres database on Railway
 
