@@ -122,4 +122,4 @@ To prevent some headaches later, I would recommend making sure that both the Pos
 
 ### Step 9. Accessing the tool!
 
-Once it finishes building, it is now accessable on your browser! The link can be found by clicking the GitHub object on Railway, found immediately under the *deployments* tab. You can change this link by navigating to the settings tab and scrolling down to the networking section! 
+Once it finishes building, you need to generate a web domain name to be able to access the tool via the web. To do this, navigate to **Settings -> Networking** on your GitHub repo object in Railway, and you should see a button to **generate a domain**. After clicking that, it will automatically assign a web link to access the tool, but this link can be changed if you desire. Also, the link will now be visible under the *deployments* tab of the GitHub repo object as well. 
