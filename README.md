@@ -42,8 +42,8 @@ password=your-database-password
 These parameters are pulled into the code that allows you to connect to the PostgreSQL object you just created in Railway a moment ago! You need to replace the following things in this text file with the variables found on your PostgreSQL object:
 
 - **your-database-name** replaced with **POSTGRES_DB**
-- **your-database-host** replaced with **PGHOST**
-- **12345** replace with **PGPORT**
+- **your-database-host** replaced with the public host found in **Settings -> Networking**
+- **12345** replace with replaced with the public port found in **Settings -> Networking**
 - **your-database-user** replaced with **POSTGRES_USER**
 - **your-database-password** replaced with **POSTGRES_PASSWORD**
 
