@@ -9,4 +9,4 @@ codeDigits=4
 groupImageHeight=112
 groupImageWidth=281
 groupName=your-group-name
-useImage=TRUE281
+useImage=TRUE
