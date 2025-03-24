@@ -10,6 +10,8 @@ if(!require(sodium)){install.packages("sodium")}
 if(!require(RPostgres)){install.packages("RPostgres")}
 if(!require(DBI)){install.packages("DBI")}
 
+library(pak); library(getPass); library(sodium); library(RPostgres); library(DBI)
+
 source("../Scripts/SDM_Main_Script.R")
 source("../Scripts/RailwayScripts.R")
 con = concon()
@@ -25,7 +27,7 @@ if(setupUsers == "Y"){
   
   print("Follow the prompts in the console. A pop-up window will also appear on screen for password entry.")
   
-  while(setupUser == "Y"){
+  while(setupUsers == "Y"){
     
     add_user(con)
     
