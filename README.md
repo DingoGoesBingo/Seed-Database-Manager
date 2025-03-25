@@ -1,5 +1,5 @@
 # Welcome to the Seed Database Manager!
-
+[![DOI](https://zenodo.org/badge/929100234.svg)](https://doi.org/10.5281/zenodo.15079114)
 The Seed Database Manager (SDM) is a Shiny R application that was designed to centralize storage of seed information and allow for easy access by all members of the group. The development of this tool was inspired by some of the issues we faced planting research plots, where certain varieties seemed to be contaminated. In this scenario, we had no real way of looking back at the seed information because we never kept a record of where our seed was coming from! And thus, the SDM was born!
 
 ## Deploying the tool for yourself:
