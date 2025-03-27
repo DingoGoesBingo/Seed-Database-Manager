@@ -11,15 +11,36 @@ Deploying the tool for yourself is fairly straight-forward! Please follow the st
 
 There are a few things that are needed before you get started:
 - A GitHub account
-- An account on www.Railway.com, which can be simply done by logging onto the website using your GitHub account (Recommended! If your institution has alternate methods for delploying Shiny R applications and databases though, that would likely require extra work to get running)
 - RStudio desktop client, required to run set-up code.
 - I would also recommend GitHub desktop, so that it's easy to push changes during the set-up.
+
+####If you plan to run the tool locally off your machine...
+- Install PostgreSQL to your device (https://www.postgresql.org/download/)
+
+####If you plan to run the tool via external hosting platforms...
+- Access to any platform that can host Shiny R applications and PostgreSQL databases, **I'd recommend Railway** (https://railway.com/) if your institution does not have it's own platform, since it connects directly to the github repo and is inexpensive to continually run.
+
+**For the sake of this README, I will assume that you are using Railway for external hosting, but the steps will largely remain the same.**
 
 ### Step 2. Derive your own private copy of the tool
 
 On this GitHub page, click on the green **Use this template** drop-down button, and **create a new repository using this repo as the template**. When creating the new reposity, make sure you set visibility to private, otherwise your **database will be visible to the public**! After you have donw this, I would recommend using the GitHub desktop client to download the files onto your local system, since we will need to make some modifications and run some set-up code. If you plan on using Railway (recommended), this repo will be where Railway retrieves all app data from!
 
-### Step 3. Creating a Postgres database on Railway
+### Step 3. Creating a Postgres database
+
+#### Local hosting:
+
+Once you have installed the PostgreSQL tools on your machine, launch the **pgAdmin** tool. From here, you may already have a local PostgreSQL server set-up by default. You can check by **clicking the Servers drop-down tab on the left side of the application and checking the properties of the PostgresSQL server**. I would recommend deleting this one and creating a new server with the following information:
+
+- Server name: *You can set this to whatever you like*
+- Host name/address: **localhost**
+- Port: **5432**
+- Username: **postgres**
+- Password: *You can set this to whatever you like*
+
+You should see you now have a server set up on the left-hand side. You should see it automatically created a database as well called **postgres**. You may keep use this database, or create a new one if you like, just make sure you make a note of the name!
+
+#### Railway/external hosting:
 
 Go to www.Railway.com and sign in using your GitHub account. If you are a first time user, you get a certain amount of credits you can use for free, but after this expires you will have to pay for the service. Your institution may have other methods for deploying Shiny apps, but for us, we just decided it was easier to pay for a Railway subscription. Below are a few links I've attached that will get you started in Railway if you're not familiar, but essentially we want to:
 - Create a new project (https://docs.railway.com/quick-start)
@@ -27,9 +48,11 @@ Go to www.Railway.com and sign in using your GitHub account. If you are a first 
 
 Once you've successfully created a Postgres object (the one with the elephant logo!), click on that object and click the *variables* tab on the window that appears on the right hand side. You should see around 13 or so variables that are starred off. These are important for connecting our code in GitHub to the location where our data is saved in the Postgres object.
 
+*Note: these steps will differ if you're using a different hosting platform, but essentially you just need to get a PostgreSQL database set up, and you would need access to the back-end information to connect it to your app!*
+
 ### Step 4. Completing the setup file
 
-Now we're going to be modifiying a basic text file and running a setup R script. Assuming you're using GitHub desktop, clone your repository to your local device and navigate to the file location for the project. From there, go to Seed-Database-Manager-GE/Setup and open **UserSettings.txt**. This file contains parameters for connecting to the database, along with a few customization parameters (we'll get to those later in the README)!
+Now we're going to be modifiying a basic text file and running a setup R script. Assuming you're using GitHub desktop, clone your repository to your local device and navigate to the file location for the project. From there, go to Seed-Database-Manager/Setup and open **UserSettings.txt**. This file contains parameters for connecting to the database, along with a few customization parameters (we'll get to those later in the README)!
 
 For now, we will need to change the following parameters:
 
@@ -40,6 +63,20 @@ port=12345
 user=your-database-user
 password=your-database-password
 ```
+#### Local setup:
+
+All we need to do is simply use those connection parameters we used to set up the local database earlier!
+
+- **your-database-name** replaced with **postgres** (unless you renamed it, or created a new database)
+- **your-database-host** replaced with the **localhost**
+- **12345** replace with replaced with the **5432**
+- **your-database-user** replaced with **postgres**
+- **your-database-password** replaced with *the password you set earlier*
+
+Once you've replaced these, you may save the text file and close it! Just make sure the formatting of the file is kept the same as it was (do not add extra spaces between the =, do not create any new lines, etc.).
+
+#### Railway/external setup:
+
 These parameters are pulled into the code that allows you to connect to the PostgreSQL object you just created in Railway a moment ago! You need to replace the following things in this text file with the variables found on your PostgreSQL object:
 
 - **your-database-name** replaced with **POSTGRES_DB**
@@ -70,7 +107,15 @@ Once again, you will then need to enter the desired username into the console at
 
 #### Step 6.1. Adding researchers and species
 
-The tables that were set up for **species** and **researchers** are meant to make registration of new entries as straight-forward and error free as possible. To add new researchers and species to these tables, it is easiest to do so directly in Railway. In the Postgres object, navigate the *data* tab and you should see the 4 tables we created earlier. From there you can individually add new rows to the **species** and **researchers** table. For example, if you have three species that you work with, you would want to add each species scientific name as a new row. Similarly, if you have 10 researchers in your workgroup, you would want to add each researcher individually. Note that researchers do not have access to the database and are simply used for organizing *who* the seed germplasm is relevant to!
+The tables that were set up for **species** and **researchers** are meant to make registration of new entries as straight-forward and error free as possible. Note that researchers do not have access to the database and are simply used for organizing *who* the seed germplasm is relevant to! I would recommend using scientific names for species and career ID names for researchers!
+
+##### Local
+
+In the pgAdmin application, navigate to the following location under your database within the local server: **Schemas -> public -> Tables**. You should see the four tables we just created. To add new species, right click on the **species** table and select **View/Edit Data** and then **All Rows**. This will open a new window with a script on top and the currently empty table on the bottom. Right underneath "Data Output" and above the empty table, select the button to **Add Row** and you can now enter text into the new row created in the table (will populate with [null] by default). The same process can be repeated with the **researchers** table! You may repeat this process for as many species or researchers you wish to work with.
+
+##### On Railway
+
+To add new researchers and species to these tables, it is easiest to do so directly in Railway. In the Postgres object, navigate the *data* tab and you should see the 4 tables we created earlier. From there you can individually add new rows to the **species** and **researchers** table. For example, if you have three species that you work with, you would want to add each species scientific name as a new row. Similarly, if you have 10 researchers in your workgroup, you would want to add each researcher individually. Note that researchers do not have access to the database and are simply used for organizing *who* the seed germplasm is relevant to!
 
 ### Step 7. Adding flair!
 
@@ -111,7 +156,13 @@ Lastly, you can change whether the group image, group name, or neither are rende
 
 In the event where future updates are made available from the original SDM-GE github, you may want to keep a copy of the settings so that you may re-insert them or copy them into the updated project! Simply copy and paste this in a safe location, outside of the GitHub files!
 
-### Step 8. Deploying to Railway!
+### Step 8. Deploying the tool!
+
+#### Locally
+
+*Still working on this part!*
+
+#### On Railway
 
 Before deploying the GitHub repo onto railway, be sure to push any changes you made to the scripts. I recommended earlier to use GitHub desktop to do this, but you might be one of those turbo geniuses that can just do that in terminal. Either way, push the changes first! 
 
@@ -122,5 +173,13 @@ The dockerfile *should* be detected and start building the image, which usually 
 To prevent some headaches later, I would recommend making sure that both the PostgreSQL and GitHub object in railway are being hosted in the same region (the build sometimes crashes migrating the host). This can be accessed in the settings for each of these on Railway.
 
 ### Step 9. Accessing the tool!
+
+#### Locally
+
+The simplest method for accessing the app would be to navigate to Seed-Database-Manager/Application/ and open **app.R**. In R Studio, there will be a **Run app** button at the top right of the script, which will open a new window with the application interface!
+
+*Still working on this part*
+
+#### On Railway
 
 Once it finishes building, you need to generate a web domain name to be able to access the tool via the web. To do this, navigate to **Settings -> Networking** on your GitHub repo object in Railway, and you should see a button to **generate a domain**. After clicking that, it will automatically assign a web link to access the tool, but this link can be changed if you desire. Also, the link will now be visible under the *deployments* tab of the GitHub repo object as well. 
