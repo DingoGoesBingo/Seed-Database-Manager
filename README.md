@@ -111,7 +111,7 @@ The tables that were set up for **species** and **researchers** are meant to mak
 
 ##### Local
 
-In the pgAdmin application, navigate to the following location under your database within the local server: **Schemas -> public -> Tables**. You should see the four tables we just created. To add new species, right click on the **species** table and select **View/Edit Data** and then **All Rows**. This will open a new window with a script on top and the currently empty table on the bottom. Right underneath "Data Output" and above the empty table, select the button to **Add Row** and you can now enter text into the new row created in the table (will populate with [null] by default). The same process can be repeated with the **researchers** table! You may repeat this process for as many species or researchers you wish to work with.
+In the pgAdmin application, navigate to the following location under your database within the local server: **Schemas -> public -> Tables**. You should see the four tables we just created. To add new species, right click on the **species** table and select **View/Edit Data** and then **All Rows**. This will open a new window with a script on top and the currently empty table on the bottom. Right underneath "Data Output" and above the empty table, select the button to **Add Row** and you can now enter text into the new row created in the table (will populate with [null] by default). Make sure you click the **save data changes button** above the datatable before moving on! The same process can be repeated with the **researchers** table. You may repeat this process for as many species or researchers you wish to work with.
 
 ##### On Railway
 
