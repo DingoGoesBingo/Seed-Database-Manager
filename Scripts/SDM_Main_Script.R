@@ -483,19 +483,28 @@ CreateGroup = function(codeVec, groupName, range = FALSE){
     
     currentRow = dbGetQuery(con, paste("SELECT groupname FROM groups WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';", sep = ""))
     
-    # If it just says ungrouped, it has never been grouped (and this will be it's first)
-    if(currentRow[1,1] == "ungrouped"){
+    # Check for a first entry
+    if(nrow(currentRow) == 0){
       
-      dbExecute(con, paste("UPDATE groups SET groupname = '", groupName, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';",  sep = ""))
+      dbExecute(con, paste("INSERT INTO groups (code, groupname) VALUES ('", tagCode$code[which(tagCode$order == jackal)], "', 'ungrouped')", sep = ""))
       
-      # If a group already exists, we just want to separate them with a comma (so that multiple groups can exist)
     } else {
       
-      currentRow = unlist(strsplit(currentRow[1,1], "\\,"))
-      
-      groupName_updated = paste(paste(currentRow, collapse = ","), groupName, sep = ",")
-      
-      dbExecute(con, paste("UPDATE groups SET groupname = '", groupName_updated, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';", sep = ""))
+      # If it just says ungrouped, it has never been grouped (and this will be it's first)
+      if(currentRow[1,1] == "ungrouped"){
+        
+        dbExecute(con, paste("UPDATE groups SET groupname = '", groupName, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';",  sep = ""))
+        
+        # If a group already exists, we just want to separate them with a comma (so that multiple groups can exist)
+      } else {
+        
+        currentRow = unlist(strsplit(currentRow[1,1], "\\,"))
+        
+        groupName_updated = paste(paste(currentRow, collapse = ","), groupName, sep = ",")
+        
+        dbExecute(con, paste("UPDATE groups SET groupname = '", groupName_updated, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';", sep = ""))
+        
+      } 
       
     }
     

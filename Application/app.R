@@ -146,7 +146,7 @@ ui = fluidPage(theme = shinytheme(useTheme),
         
         column(4, align = "left", downloadButton("downloadDT", label = textOutput("downloadDT_selections"), width = 600)), # "Download dataset (.csv)"
         
-        column(8, align = "right", radioButtons(inputId = "SearchOptions", h4("Select search type:"), choices = list("Simple search" = 1, "Range search (by code)" = 2, "Multi-search (by code)" = 3), selected = 1, inline = TRUE)),
+        column(8, align = "right", radioButtons(inputId = "SearchOptions", h4("Select search type:"), choices = list("Simple search" = 1, "Range search (by code)" = 2, "Multi-search (by code)" = 3, "Group search" = 4), selected = 1, inline = TRUE)),
         
         
         
