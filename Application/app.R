@@ -1,7 +1,7 @@
 ### WARNING -- MAKE SURE THE LATEST VERSION OF R IS INSTALLED --
 
 # Version String!
-versionString = "1.0"
+versionString = "1.1"
 
 # Install packages ----
 
@@ -40,6 +40,7 @@ data = datafix(as.data.frame(read.csv("../Database/WL_Database.csv")))
 # Customization parameters
 params = read.table("../Setup/UserSettings.txt", sep = "=")[,1]
 useImage = params[11]
+useTheme = params[12]
 
 if(params[11] == TRUE && file.exists("../Setup/groupImage/group.png")){
   
@@ -77,16 +78,16 @@ timerCount = reactiveValues(var = maxtimer)
 
 # Always leave the first option blank, it's required for the drop-down text in the app.
 # New researchers and plant species must be added manually on Railway.
-Researcher_List = as.list(c("", as.vector(unlist(dbGetQuery(concon(), "SELECT username FROM researchers;")))))
-Species_List = as.list(c("", as.vector(unlist(dbGetQuery(concon(), "SELECT species FROM species;")))))
 User_List = as.list(c("", as.vector(unlist(dbGetQuery(concon(), "SELECT username FROM users;")))))
+Species_List = as.list(c("", as.vector(unlist(dbGetQuery(concon(), "SELECT species FROM species;")))))
+Researcher_List = as.list(c("", as.vector(unlist(dbGetQuery(concon(), "SELECT username FROM researchers;")))))
 
 # Java code for page refresh ----
 
 jscode <- "shinyjs.refresh_page = function() { history.go(0); }"
 
 # Define UI ----
-ui = fluidPage(theme = shinytheme("yeti"),
+ui = fluidPage(theme = shinytheme(useTheme),
   
   # Tab title
   tags$head(tags$title(paste(params[10], "Seed Database Manager", "Ver.", versionString, sep = " "))),
@@ -107,7 +108,7 @@ ui = fluidPage(theme = shinytheme("yeti"),
       br(),
       p("All scripts for this tool can be accessed via the public GitHub page."),
       hr(),
-      radioButtons(inputId = "funcSelection", label = h3("What would you like to do?"), choices = list("Register new seeds" = 1, "Register multiple seeds (template upload)" = 3, "Add a note" = 4), selected = 1),
+      radioButtons(inputId = "funcSelection", label = h3("What would you like to do?"), choices = list("Register new seeds" = 1, "Register multiple seeds (template upload)" = 3, "Add a note" = 4, "Organize: create germplasm sets" = 5, "Organize: remove germplasm sets" = 6), selected = 1),
       
       
       br(),
@@ -161,7 +162,10 @@ ui = fluidPage(theme = shinytheme("yeti"),
         column(6, align = "right", uiOutput("DTSearchRangeRight"), offset = -1),
         
         # For exact search
-        column(12, align = "right", uiOutput("DTSearchMulti"))
+        column(12, align = "right", uiOutput("DTSearchMulti")),
+        
+        # For group search
+        column(12, align = "right", uiOutput("DTGroupSearch"))
         
       ),
       
@@ -238,6 +242,31 @@ ui = fluidPage(theme = shinytheme("yeti"),
         
       ),
 
+      fluidRow(
+        
+        column(4, uiOutput("CodeDropdown")),
+        
+        column(4, uiOutput("CodeDropdown_R")),
+        
+        column(4, uiOutput("EnterGroup"))
+        
+      ),
+      
+      fluidRow(
+        
+        column(4, uiOutput("CodeDropdown_Options")),
+        
+        column(4, uiOutput("blankSpacer")),
+        
+        column(4, uiOutput("EnterGroup_Options"))
+        
+      ),
+      
+      fluidRow(
+        
+        column(4, uiOutput("GroupDropdown"))
+        
+      ),
       
       fluidRow(
         
@@ -253,7 +282,7 @@ ui = fluidPage(theme = shinytheme("yeti"),
         
         hr(),
         
-        h6("Seed Database Tool GE ver. 1.0, programmed by Sam Schafer. Additional programming contributed by Jason King.", align = "right")
+        h6(paste("Wang Lab Seed Database Tool ver. ", versionString, ", programmed by Sam Schafer. Additional programming contributed by Jason King.", sep = ""), align = "right")
         
       )
       
@@ -292,6 +321,16 @@ server = function(input, output) {
   # dataset = reactive(data)
   dataset = reactive(datafix(data))
   
+  # Reactive list for groups ----
+  
+  Group_List = reactive({
+    
+    # as.list(unique(as.vector(unlist(dbGetQuery(concon(), "SELECT groupname FROM groups;")))))
+    
+    as.list(GroupRetrieve(reverse = TRUE, rmungrouped = TRUE))
+    
+  })
+  
   # Search boxes ----
   
   output$DTSearch = renderUI({
@@ -308,7 +347,10 @@ server = function(input, output) {
     
     if(input$SearchOptions == 2){
       
-      textInput("DTSearchRangeLeft", NULL, value = "", placeholder = "Upper end; TAG####")
+      div(
+        style = "text-align: left; display: flex; justify-content: flex-end;", 
+        selectizeInput("DTSearchRangeLeft", NULL, choices = data$Code, selected = NULL, multiple = FALSE)
+      )
       
     } 
     
@@ -318,22 +360,41 @@ server = function(input, output) {
     
     if(input$SearchOptions == 2){
       
-      textInput("DTSearchRangeRight", NULL, value = "", placeholder = "Lower end; TAG####")
+      div(
+        style = "text-align: left; display: flex; justify-content: flex-end;", 
+        selectizeInput("DTSearchRangeRight", NULL, choices = data$Code, selected = NULL, multiple = FALSE)
+      )
       
     } 
     
   })
   
   output$DTSearchMulti = renderUI({
-
+    
     if(input$SearchOptions == 3){
-
-      textInput("DTSearchMulti", label = NULL, value = "", placeholder = "Separate by commas (TAG####, TAG####, ...)")
-
+      
+      # selectizeInput("DTSearchMulti", NULL, choices = data$Code, selected = data$Code[1], multiple = TRUE)
+      textInput("DTSearchMulti", label = NULL, value = "", 
+                placeholder = paste("Separate with commas (", params[6], paste(rep("#", as.numeric(params[7])), collapse = ""), ",", 
+                                    params[6], paste(rep("#", as.numeric(params[7])), collapse = ""), ",...)", sep = ""), width = "150%")
+      
     }
-
+    
   })
-
+  
+  output$DTGroupSearch = renderUI({
+    
+    if(input$SearchOptions == 4){
+      
+      div(
+        style = "text-align: left; display: flex; justify-content: flex-end;", 
+        selectInput("DTGroupSearch", label = NULL, choices = Group_List(), selected = Group_List()[[1]])
+      )
+      
+    }
+    
+  })
+  
   
   # Reactive dataset generation ----
   
@@ -345,7 +406,6 @@ server = function(input, output) {
   
   dataset_sub_range = reactive(
     
-    # data[which(grepl(tolower(input$DTSearchRangeLeft), tolower(dbcollapse(data)))):which(grepl(tolower(input$DTSearchRangeRight), tolower(dbcollapse(data)))),]
     data[which(grepl(tolower(input$DTSearchRangeLeft), tolower(
       unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]
     ))):which(grepl(tolower(input$DTSearchRangeRight), tolower(
@@ -355,34 +415,14 @@ server = function(input, output) {
   )
   
   dataset_sub_multi = reactive(
-
-    data[c(vecposcall(tolower(input$DTSearchMulti), tolower(unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]))),]
-
-  )
-  
-  # Reactive list of WL Codes, for revamped label printing ----
-  
-  codeList_full = reactive(
-
-    as.vector(data[,1])
-
-  )
-
-  codeList_sub = reactive(
-
-    as.vector(data[grepl(tolower(input$DTSearch), tolower(dbcollapse(data))),1])
-
-  )
-
-  codeList_sub_range = reactive(
-
-    as.vector(data[which(grepl(tolower(input$DTSearchRangeLeft), tolower(dbcollapse(data)))):which(grepl(tolower(input$DTSearchRangeRight), tolower(dbcollapse(data)))),1])
-
-  )
-  
-  codeList_sub_multi = reactive(
     
-    unlist(strsplit(gsub(" ", "", input$DTSearchMulti), ","))
+    data[c(vecposcall(tolower(input$DTSearchMulti), tolower(unlist(strsplit(dbcollapse(data), "_\\|-"))[seq(1,length(unlist(strsplit(dbcollapse(data), "_\\|-"))),11)]))),]
+    
+  )
+  
+  dataset_sub_grouped = reactive(
+    
+    data[which(data$Code %in% GroupRetrieve(input$DTGroupSearch)),]
     
   )
     
@@ -412,6 +452,12 @@ server = function(input, output) {
     
   )
   
+  selectionsToDownload_sub_grouped = reactive(
+    
+    length(GroupRetrieve(input$DTGroupSearch))
+    
+  )
+  
   # Database visualization -----
   
   output$database = renderDataTable(
@@ -421,9 +467,9 @@ server = function(input, output) {
       dataset()
       
     } else if(input$DTSearch != "" && input$SearchOptions == 1){
-    
+      
       dataset_sub()
-        
+      
     } else if(input$SearchOptions == 2 && (input$DTSearchRangeLeft == "" || input$DTSearchRangeRight == "")){
       
       dataset()
@@ -440,16 +486,20 @@ server = function(input, output) {
       
       dataset()
       
+    } else if(input$SearchOptions == 4){
+      
+      dataset_sub_grouped()
+      
     },
     
     options = list(dom = "itlp", columnDefs = list(list(
-    targets = 11,
-    render = JS(
-      "function(data, type, row, meta) {",
-      "return type === 'display' && data.length > 6 ?",
-      "'<span title=\"' + data + '\">' + data.substr(0, 15) + '...</span>' : data;",
-      "}")
-  ))), callback = JS('table.page(3).draw(false);'))
+      targets = 11,
+      render = JS(
+        "function(data, type, row, meta) {",
+        "return type === 'display' && data.length > 6 ?",
+        "'<span title=\"' + data + '\">' + data.substr(0, 15) + '...</span>' : data;",
+        "}")
+    ))), callback = JS('table.page(3).draw(false);'))
 
   # output$database = renderDataTable({dataset()})
   
@@ -480,6 +530,10 @@ server = function(input, output) {
     } else if(input$SearchOptions == 3 && input$DTSearchMulti == ""){
       
       paste("Download database (.csv) ", "[", selectionsToDownload_full(), " entries]", sep = "")
+      
+    } else if(input$SearchOptions == 4){
+      
+      paste("Download database (.csv) ", "[", selectionsToDownload_sub_grouped(), " entries]", sep = "")
       
     }
     
@@ -517,6 +571,10 @@ server = function(input, output) {
           
           dataset()
           
+        } else if(input$SearchOptions == 4){
+          
+          dataset_sub_grouped()
+          
         },
         
         fname
@@ -538,14 +596,22 @@ server = function(input, output) {
     } else if(input$funcSelection == 3 && AUTHENTICATED$var == TRUE) {
       
       h3("Batch seed registration")
-    
+      
     } else if(AUTHENTICATED$var == FALSE){
-        
+      
       h3("Sign in")
-       
+      
     } else if(input$funcSelection == 4 && AUTHENTICATED$var == TRUE){
       
       h3("Add a note to an existing entry")
+      
+    } else if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      h3("Create germplasm sets")
+      
+    } else if(input$funcSelection == 6 && AUTHENTICATED$var == TRUE){
+      
+      h3("Remove germplasm sets")
       
     }
     
@@ -555,15 +621,23 @@ server = function(input, output) {
     
     if(input$funcSelection == 1){
       
-      helpText("Register new seeds by entering in the PI number, accession name, species (full scientific name, i.e. Glycine max), seed source, original researcher to whom the seed is relevant to, and a short description of the seed entry. Running this function will automatically generate a new lab code for the new entry (TAG####). Please make sure to double check correct information before submitting!")
+      helpText(paste("Register new seeds by providing accession name, seed source, associated IDs, species, relevant researcher, harvest date information, and a short description of the seed entry. Running this function will automatically generate a new lab code for the new entry (", params[6], paste(rep("#", as.numeric(params[7])), collapse = ""), "). Please make sure to double check correct information before submitting data!"))
       
     } else if(input$funcSelection == 3){
       
-      helpText("Registering many seeds at once? This function allows you to upload a template file to allow easier entry into the database. Please download and fill out the template file (see manual for more details).")
+      helpText("Registering many seeds at once? This procedure allows you to upload a template file to allow easier entry into the database. Please download and fill out the template file (see manual for more details).")
       
-    } else {
+    } else if(input$funcSelection == 4) {
       
       helpText("In the event that more information is available, you can append a note the the description of an existing entry using this function.")
+      
+    } else if(input$funcSelection == 5){
+      
+      helpText("Select entries to add to a germplasm set! Entries can be part multiple sets. This allows you to easily search for all entries assigned to a specific germplasm set, without modifying the entries directly.")
+      
+    } else if(input$funcSelection == 6){
+      
+      helpText("Select germplasm sets to disband, if they are no longer needed. This does not modify or remove entries from the database.")
       
     }
     
@@ -738,7 +812,7 @@ server = function(input, output) {
     
     if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
       
-      textInput("Prox_Source", h4("Enter the proximal source*"), value = "", placeholder = "e.g. GRIN, TAG####")
+      textInput("Prox_Source", h4("Enter the proximal source*"), value = "", placeholder = paste("e.g. USDA GSOR, ", params[6], paste(rep("#", as.numeric(params[7])), collapse = ""), sep = ""))
       
     } 
     
@@ -865,16 +939,24 @@ server = function(input, output) {
       
       actionButton("AddNote", label = "Append note to description", width = 300)
       
+    } else if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      actionButton("CreateGroup", label = "Create group with entries", width = 300)
+      
+    } else if(input$funcSelection == 6 && AUTHENTICATED$var == TRUE){
+      
+      actionButton("RemoveGroup", label = "Remove specified group", width = 300)
+      
     }
     
   })
   
   output$Register_Warning = renderUI({
-  
+    
     if(input$funcSelection == 1 && AUTHENTICATED$var == TRUE){
-    
+      
       helpText("Note: Before submitting, please make sure all the above information is correct and free of typos. Boxes can be left empty, but it is not recommended to do so. The application will refresh upon registration. * = Required field.")
-    
+      
     } else if(input$funcSelection == 3 && AUTHENTICATED$var == TRUE){
       
       helpText("Note: For this function to work properly, you must download and fill out the template sheet. The description is filled out seperately and appended to all new entries. Please be aware, this process may take a while. Go grab yourself a cup of coffee while you wait!")
@@ -883,8 +965,16 @@ server = function(input, output) {
       
       helpText("Note: Upon addition of new information, a date tag is automatically generated and appended to the description. Please be aware, this date tag is flanked by asterisk (*) characters, which means that (*) cannot be a character in a note entry.")
       
-    }
-  
+    } else if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      helpText("Note: Commas (,) are used to separate multiple germplasm set names for individual entires, and as such cannot be used in the set name! Also, entries can still be added to existing germplasm sets at any time.")
+      
+    } else if(input$funcSelection == 6 && AUTHENTICATED$var == TRUE){
+      
+      helpText("Note: Make sure you really want to remove the germplasm set before removing! Otherwise, you have to manually recreate the set again.")
+      
+    } 
+    
   })
   
   # Perform seed registration using input parameters, generate popup window, and refresh application ----
@@ -1062,6 +1152,186 @@ server = function(input, output) {
       AddNote(Code = input$FindCode, Note = input$TheNote, User = input$User)
       
       shinyalert("Note sucessfully appended", "The application will refresh shortly to show your changes.", type = "info")
+      
+      delay(5000, {
+        
+        write.table(timerCount$var, "../Temporary/timerMem/remaining.txt", row.names = FALSE, col.names = FALSE)
+        
+        js$refresh_page()
+        
+      })
+      
+    }
+    
+  })
+  
+  # Create groups functions ----
+  
+  output$CodeDropdown_Options = renderUI({
+    
+    if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      radioButtons(inputId = "CodeDropdown_Options", label = NULL, choices = list("Manually select entries" = 1, "Select range of entries" = 2), selected = 1)
+      
+    }
+    
+  })
+  
+  output$EnterGroup_Options = renderUI({
+    
+    if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      radioButtons(inputId = "EnterGroup_Options", label = NULL, choices = list("Enter a new germplasm set" = 1, "Select existing gemplasm set"= 2), selected = 1)
+      
+    }
+    
+  })
+  
+  output$CodeDropdown = renderUI({
+    
+    if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      if(input$CodeDropdown_Options == 1){
+        
+        selectizeInput("CodeDropdown", h4("Select entries:"), choices = data$Code, selected = NULL, multiple = TRUE, width = "200%")
+        
+      } else if(input$CodeDropdown_Options == 2){
+        
+        selectizeInput("CodeDropdown", h4("Select start entry:"), choices = data$Code, selected = NULL, multiple = FALSE)
+        
+      }
+      
+    }
+    
+  })
+  
+  output$CodeDropdown_R = renderUI({
+    
+    if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      if(input$CodeDropdown_Options == 2){
+        
+        selectInput("CodeDropdown_R", h4("Select end entry:"), choices = data$Code, selected = NULL, multiple = FALSE)
+        
+      }
+      
+    }
+    
+  })
+  
+  output$EnterGroup = renderUI({
+    
+    if(input$funcSelection == 5 && AUTHENTICATED$var == TRUE){
+      
+      if(input$EnterGroup_Options == 1){
+        
+        textInput("EnterGroup", h4("Type a new name:"), value = "", placeholder = "Type here (no commas [,])")
+        
+      } else if(input$EnterGroup_Options == 2){
+        
+        selectInput("EnterGroup", h4("Select a germplasm set:"), choices = Group_List(), selected = NULL, multiple = FALSE)
+        
+      }    
+      
+    }
+    
+  })
+  
+  # Perform group create ----
+  
+  observeEvent(input$CreateGroup,{
+    
+    if(input$CodeDropdown_Options == 2){
+      
+      if(is.null(input$CodeDropdown_R) == TRUE || is.null(input$CodeDropdown) == TRUE || input$EnterGroup == "" || grepl("\\,", input$EnterGroup) == TRUE){
+        
+        shinyalert("Create germplasm set failed", "Please make sure at lease one entry code is selected for each drop down box and ensure there are no commas (,) in the set name.", type = "error")
+        
+      } else if(input$EnterGroup == "ungrouped"){
+        
+        shinyalert("Create germplasm set failed", "Entries cannot be added to 'ungrouped'.", type = "error")
+        
+      } else {
+        
+        showNotification("Set creation is running. This will take a while!", duration = NULL)
+        
+        CreateGroup(c(input$CodeDropdown, input$CodeDropdown_R), input$EnterGroup, range = TRUE)
+        
+        shinyalert("Germplasm set created successfully", "The application will refresh shortly to show your changes.", type = "info")
+        
+        delay(5000, {
+          
+          write.table(timerCount$var, "../Temporary/timerMem/remaining.txt", row.names = FALSE, col.names = FALSE)
+          
+          js$refresh_page()
+          
+        })
+        
+      }
+      
+    } else if(input$CodeDropdown_Options == 1){
+      
+      if(is.null(input$CodeDropdown) == TRUE || input$EnterGroup == "" || grepl("\\,", input$EnterGroup) == TRUE){
+        
+        shinyalert("Create germplasm set failed", "Please make sure at lease one entry code is selected for each drop down box and ensure there are no commas (,) in the set name.", type = "error")
+        
+      } else if(input$EnterGroup == "ungrouped"){
+        
+        shinyalert("Create germplasm set failed", "Entries cannot be added to 'ungrouped'.", type = "error")
+        
+      } else {
+        
+        showNotification("Set creation is running. This will take a while!", duration = 10)
+        
+        CreateGroup(input$CodeDropdown, input$EnterGroup, range = FALSE)
+        
+        shinyalert("Germplasm set created successfully", "The application will refresh shortly to show your changes.", type = "info")
+        
+        delay(5000, {
+          
+          write.table(timerCount$var, "../Temporary/timerMem/remaining.txt", row.names = FALSE, col.names = FALSE)
+          
+          js$refresh_page()
+          
+        })
+        
+      }
+      
+    }
+    
+  })
+  
+  # Remove group functions ----
+  
+  output$GroupDropdown = renderUI({
+    
+    if(input$funcSelection == 6 && AUTHENTICATED$var == TRUE){
+      
+      selectInput("GroupDropdown", h4("Select an existing germplasm set:"), choices = Group_List(), selected = NULL, multiple = FALSE)
+      
+    }
+    
+  })
+  
+  # Perform remove group ----
+  
+  observeEvent(input$RemoveGroup,{
+    
+    if(is.null(input$GroupDropdown) == TRUE){
+      
+      shinyalert("Set removal failed", "No set was selected.", type = "error")
+      
+    } else if(input$GroupDropdown == "ungrouped") {
+      
+      shinyalert("Set removal failed", "'Ungrouped' cannot be removed", type = "error")
+      
+    } else {
+      
+      showNotification("Set removal is running. This will take a while!", duration = NULL)
+      
+      RemoveGroup(input$GroupDropdown)
+      
+      shinyalert("Germplasm set successfully removed", "The application will refresh shortly to show your changes.", type = "info")
       
       delay(5000, {
         

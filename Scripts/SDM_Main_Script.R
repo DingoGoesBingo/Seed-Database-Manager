@@ -138,37 +138,8 @@ Register = function(Accession = NA, Source = NA, Prox_Source = NA, Add_ID_1 = NA
   
   dbRegister(con, WL.Code, Accession, Source, Prox_Source, Add_ID_1, Add_ID_2, Species, Researcher, Harvest, as.character(Sys.Date()), Desc)
   
-  # Step 6.)    Print detailed report to the user / report code to the print function (All moved to a new function)
-  
-  # Create a mini dataset to export to the print function 
-  # print.info = as.data.frame(matrix(nrow = 0, ncol = 4))
-  
-  # Append information
-  # print.info = rbind(print.info, c(WL.Code, Species ,as.character(Sys.Date()), Researcher))
-  # names(print.info) = c("Code", "Species", "DoE", "Researcher")
-  
-  # Empty PrintInfo folder before writing
-  # fragments = list.files("../PrintInfo")
-  # 
-  # for(poncho in 1:length(fragments)){
-  #   
-  #   file.remove(paste("../PrintInfo/", fragments[poncho], sep = ""))
-  #   
-  # }
-  
-  # Save to the PrintInfo folder (which gets cleaned frequently) [for legacy label printing]
-  # write.csv(print.info, paste("../PrintInfo/", Sys.Date(), "_", WL.Code, "_", "print.info.csv", sep = ""), row.names = FALSE)
-  
-  # Run label printing code (to be moved to it's own function soon)
-  # label_create(file = paste("../PrintInfo/", Sys.Date(), "_", WL.Code, "_", "print.info.csv", sep = ""), batch = Batch)
-  
-  
-  # print(paste("Entry", WL.Code, "registered successfully. Please see the entry below."))
-  # print("----------------------------------------------------")
-  # print("----------------------------------------------------")
-  # print(Database[Existing.Entries+1,])
-  # print("----------------------------------------------------")
-  # print("----------------------------------------------------")
+  # Step 6.)  Update group with default value
+  CreateGroup(WL.Code, "ungrouped")
   
 }
 
@@ -433,6 +404,231 @@ AddNote = function(Code, Note, User){
   Database[Row_Num,] = QueryRow
   write.csv(Database, "../Database/WL_Database.csv", row.names = FALSE)
     
+}
+
+# ------------------------------------------------- #
+
+#               Create Groups Function              #
+
+# ------------------------------------------------- #
+#####################################################
+#################### Description #############-#[]#X#
+#####################################################
+# New function that allows users to create groups   #
+# of entries, which pretty much acts to tag entries #
+# with a common group name.                         #
+#####################################################
+
+CreateGroup = function(codeVec, groupName, range = FALSE){
+  
+  # Load packages and scripts
+  
+  library(pak)
+  library(getPass)
+  library(sodium)
+  library(RPostgres)
+  library(DBI)
+  
+  source("../Scripts/SDM_Main_Script.R")
+  
+  # Step 0.) All saved to a separate database in the PostgreSQL object
+  #          If the database is empty, create empty rows based on number of
+  #          rows in the wl_database.
+  
+  # Realistically, this code won't ever run since I plan to add new rows
+  # on each new entry into the database
+  
+  params = read.table("../Setup/UserSettings.txt", sep = "=")
+  TAG = params[6,1]
+  
+  con = concon()
+  
+  tagCode = dbGetQuery(con, "SELECT code FROM wl_database")
+  tagCode$order = as.numeric(gsub(TAG,"",tagCode$code))
+  
+  if(dbGetQuery(con, "SELECT COUNT(*) FROM groups")[1,1] == 0){
+    
+    dLen = dbGetQuery(con, "SELECT COUNT(*) FROM wl_database")[1,1]
+    
+    for(megachiro in 1:as.numeric(dLen)){
+      
+      # Enter a new row with "ungrouped" for each row
+      # Takes a WHILE if you have a lot of rows
+      
+      dbExecute(con, paste("INSERT INTO groups (code, groupname) VALUES ('", tagCode$code[which(tagCode$order == megachiro)], "', 'ungrouped')", sep = ""))
+      
+    }
+    
+  }
+  
+  # Step 0.5.) If a code range is specified, retrieve the entire code vector first
+  
+  if(range == TRUE){
+    
+    groupsTable = dbReadTable(con, "groups")
+    groupsTable$order = as.numeric(gsub(TAG,"",groupsTable$code))
+    groupsTable = groupsTable[order(groupsTable$order, decreasing = FALSE), ]
+    
+    codeVec = as.vector(groupsTable$code[which(groupsTable$code == codeVec[1]):which(groupsTable$code == codeVec[2])])
+    
+  }
+  
+  # Step 1.) Run a loop through all WL codes specified
+  
+  numVec = as.numeric(gsub(TAG,"",codeVec))
+  
+  # Step 2.) Access the specific row, then decide...
+  
+  for(jackal in numVec){
+    
+    currentRow = dbGetQuery(con, paste("SELECT groupname FROM groups WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';", sep = ""))
+    
+    # If it just says ungrouped, it has never been grouped (and this will be it's first)
+    if(currentRow[1,1] == "ungrouped"){
+      
+      dbExecute(con, paste("UPDATE groups SET groupname = '", groupName, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';",  sep = ""))
+      
+      # If a group already exists, we just want to separate them with a comma (so that multiple groups can exist)
+    } else {
+      
+      currentRow = unlist(strsplit(currentRow[1,1], "\\,"))
+      
+      groupName_updated = paste(paste(currentRow, collapse = ","), groupName, sep = ",")
+      
+      dbExecute(con, paste("UPDATE groups SET groupname = '", groupName_updated, "' WHERE code = '", tagCode$code[which(tagCode$order == jackal)], "';", sep = ""))
+      
+    }
+    
+  }
+  
+}
+
+# ------------------------------------------------- #
+
+#               Remove Groups Function              #
+
+# ------------------------------------------------- #
+#####################################################
+#################### Description #############-#[]#X#
+#####################################################
+# New function that allows users to remove groups   #
+# from all tagged entries, in case they are no      #
+# longer relevant.                                  #
+#####################################################
+
+RemoveGroup = function(groupName){
+  
+  # Load packages and scripts
+  
+  library(pak)
+  library(getPass)
+  library(sodium)
+  library(RPostgres)
+  library(DBI)
+  
+  source("../Scripts/SDM_Main_Script.R")
+  
+  con = concon()
+  
+  # Step 1.) Extract all rows that include the groupName
+  
+  groupsTable = dbReadTable(con, "groups")
+  rowsToUpdate = groupsTable[which(grepl(groupName, groupsTable$groupname) == TRUE),]
+  
+  # Run loop through rows of rows to update
+  
+  for(megachiro in 1:nrow(rowsToUpdate)){
+    
+    currentRow = rowsToUpdate[megachiro,]
+    
+    # Step 2.) Remove group from the list
+    
+    groupName_updated = paste(unlist(strsplit(currentRow$groupname, "\\,"))[!unlist(strsplit(currentRow$groupname, "\\,")) %in% groupName], collapse = ",")
+    
+    # Step 2.1.) If there are no longer any groups remaining, reset back to 'ungrouped'
+    if(groupName_updated == ""){
+      
+      groupName_updated = "ungrouped"
+      
+    }
+    
+    # Step 3.) Update the current row in the database
+    
+    dbExecute(con, paste("UPDATE groups SET groupname = '", groupName_updated, "' WHERE code = '", currentRow$code, "';", sep = ""))
+    
+  }
+  
+}
+
+# --------------------------------------------------- #
+
+#               Retrieve Groups Function              #
+
+# --------------------------------------------------- #
+#######################################################
+##################### Description ##############-#[]#X#
+#######################################################
+# New function that retrieves a list of WL codes      #
+# of a specified group                                #
+#######################################################
+
+GroupRetrieve = function(groupName = "ungrouped", reverse = FALSE, rmungrouped = FALSE){
+  
+  # Load packages and scripts
+  
+  library(pak)
+  library(getPass)
+  library(sodium)
+  library(RPostgres)
+  library(DBI)
+  
+  source("../Scripts/SDM_Main_Script.R")
+  
+  # Return a list of all WL codes of a certain groupName, or all unique groupnames
+  
+  con = concon()
+  
+  groupsTable = dbReadTable(con, "groups")
+  
+  if(reverse == FALSE){
+    
+    # Step 1.) Extract all rows that include the groupName
+    groupList = as.list(groupsTable$groupname)
+    returnRows = c()
+    
+    for(megachiro in 1:length(groupList)){
+      
+      # Needs to take into account commas, for entries in multiple groups
+      groupList[[megachiro]] = unlist(strsplit(groupList[[megachiro]], "\\,"))
+      
+      if(groupName %in% groupList[[megachiro]]){
+        
+        returnRows = c(returnRows, megachiro)
+        
+      }
+      
+    }
+    
+    codeVec = groupsTable[returnRows, 1]
+    
+    # Step 2.) Return the list of codes
+    return(codeVec)
+    
+  } else {
+    
+    # Step 1.) Find all unique group names and return
+    uniqueGroups = sort(unique(unlist(strsplit(groupsTable$groupname,"\\,"))))
+    
+    if(rmungrouped == TRUE && length(uniqueGroups) > 1){
+      
+      uniqueGroups = uniqueGroups[which(uniqueGroups != "ungrouped")]
+      
+    }
+    
+    return(uniqueGroups)
+    
+  }
+  
 }
 
 # ------------------------------------------------- #

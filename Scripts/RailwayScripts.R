@@ -92,6 +92,24 @@ generate_user_table = function(con) {
   cat("Users table created or already exists.\n")
 }
 
+#############################
+##  generate_group_table() ##
+#############################
+## Creates a group table   ##
+## in Railway.             ##
+#############################
+
+generate_group_table = function(con) {
+  # Create the 'researchers' table if it doesn't exist
+  dbExecute(con, "
+    CREATE TABLE IF NOT EXISTS groups (
+      code TEXT PRIMARY KEY,
+      groupname VARCHAR(255) DEFAULT 'ungrouped'
+    );
+  ")
+  cat("Group table created.\n")
+}
+
 ############################
 ##  list_current_users()  ##
 ############################

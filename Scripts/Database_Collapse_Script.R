@@ -30,9 +30,13 @@ dbcollapse = function(data){
 
 # Vec to pos
 
-vecposcall = function(vec, cal){
+vecposcall = function(vec, cal, istring = TRUE){
   
-  vec = unlist(strsplit(gsub(" ", "", vec), ","))
+  if(istring == TRUE){
+    
+    vec = unlist(strsplit(gsub(" ", "", vec), ","))
+    
+  }
   
   retnum = c()
   

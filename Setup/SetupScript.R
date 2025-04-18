@@ -20,6 +20,7 @@ generate_data_table(con)
 generate_researcher_table(con)
 generate_species_table(con)
 generate_user_table(con)
+generate_group_table(con)
 
 setupUsers = readline(prompt = "Would you like to set up a user now? (please enter 'Y' or 'N'): ")
 

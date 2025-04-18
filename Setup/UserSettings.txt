@@ -10,3 +10,4 @@ groupImageHeight=112
 groupImageWidth=281
 groupName=your-group-name
 useImage=TRUE
+useTheme=yeti
