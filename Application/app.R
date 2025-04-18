@@ -1392,7 +1392,7 @@ server = function(input, output) {
     filename = function(){"SDM_User_Manual.pdf"}, 
     content = function(file){
       
-      file.copy("../Manual/Seed Database Manager Manual Ver. 1.0.pdf", file)
+      file.copy(paste("../Manual/Seed Database Manager Manual Ver. ", versionString,".pdf", sep = ""), file)
       
     }
     
