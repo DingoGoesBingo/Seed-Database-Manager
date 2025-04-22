@@ -16,6 +16,7 @@ There are a few things that are needed before you get started:
 
 #### If you plan to run the tool locally off your machine...
 - Install PostgreSQL to your device (https://www.postgresql.org/download/)
+- Install Docker Desktop, if you plan on running the app from a local container (https://www.docker.com/products/docker-desktop/)
 
 #### If you plan to run the tool via external hosting platforms...
 - Access to any platform that can host Shiny R applications and PostgreSQL databases, **I'd recommend Railway** (https://railway.com/) if your institution does not have it's own platform, since it connects directly to the github repo and is inexpensive to continually run.
@@ -158,9 +159,33 @@ In the event where future updates are made available from the original SDM-GE gi
 
 ### Step 8. Deploying the tool!
 
-#### Locally
+#### Locally (via Docker Desktop; M2 Mac)
 
-*Still working on this part!*
+There are two ways to access the tool. The simplest being through the RStudio application and the second through local hosting with Docker. If you plan to use the first method, you may skip this section and move down to **Step 9**. Otherwise, you will need to follow a series of *rather complicated steps* below. Also just as a prefice, I will be writing the section below for local deployment using a **M2 Mac**, so my Linux and Windows (or older Mac) users may need to do some digging to modify some of the steps!
+
+##### Step 8.1. Modifying the setup file
+
+The first step will be to change one of the parameters of the setup file. If you haven't already, please open up the setup file and **navigate to the final line:**
+
+```
+useLocalDocker=FALSE
+```
+
+All you need to do here is **change FALSE to TRUE**. Once you have done this, save the file and close it!
+
+##### Step 8.2. Running the local docker setup file
+
+In the **Setup/forLocalDocker** folder, open LocalDeploymentSetup.R in Rstudio and **source the file**, just like we did previously. Just a warning, **ONLY run this code if you do not plan to use this for Railway or external hosting!** This code will do a few things, but namely:
+
+- Replaces the current dockerfile (setup for Railway) with one suited for Docker Desktop
+- Modifies some information in the new dockerfile with database info found in the UserSettings file
+- Runs the Terminal code necessary to create a docker image. (**for non-Mac users, this is likely the code that will need to change for you!**)
+
+This code should take a while to run, but once it is complete, you should notice a new image show up in Docker Desktop called **sdm-applciation**.
+
+##### Step 8.3. Deploying container
+
+On docker desktop, select the **sdm-application** image and click run. You will now be prompted to modify optional settings. Please on this up and **enter 3838 for port** and **give the container a name** (I usually used sdmcont). This will now create a new container on Docker Desktop with the provided name. Navigate to the containers tab and **run the container!** After this, it should be available at localhost:3838 on your web browser!
 
 #### On Railway
 
@@ -178,7 +203,7 @@ To prevent some headaches later, I would recommend making sure that both the Pos
 
 The simplest method for accessing the app would be to navigate to Seed-Database-Manager/Application/ and open **app.R**. In R Studio, there will be a **Run app** button at the top right of the script, which will open a new window with the application interface!
 
-*Still working on this part*
+For the docker method, you should be able to access your application by navigating to **localhost:3838** on your web browser, if properly deployed! Please ensure that your browser settings allow for local connections. Just as a ease-of-access tip on Mac, you can drag the URL for **localhost:3838** to your desktop to create a quick shortcut to access the app! 
 
 #### On Railway
 
