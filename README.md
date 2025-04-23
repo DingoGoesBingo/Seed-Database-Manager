@@ -159,29 +159,36 @@ In the event where future updates are made available from the original SDM-GE gi
 
 ### Step 8. Deploying the tool!
 
-#### Locally (via Docker Desktop; M2 Mac)
+#### Locally
 
-There are two ways to access the tool. The simplest being through the RStudio application and the second through local hosting with Docker. If you plan to use the first method, you may skip this section and move down to **Step 9**. Otherwise, you will need to follow a series of *rather complicated steps* below. Also just as a prefice, I will be writing the section below for local deployment using a **M2 Mac**, so my Linux and Windows (or older Mac) users may need to do some digging to modify some of the steps!
+There are two ways to access the tool. The simplest being through the RStudio application and the second through local hosting with Docker, the difference between the two mainly being that **docker allows you to continually keep the application running on your host computer**. If you plan to use the first method, you may skip this section and move down to **Step 9**. Otherwise, you will need to follow a series of *rather complicated steps* below. Also, the steps will be slightly different depending on your computer platform and as a result have been adapted to **Mac (Apple Silicon)** and **Windows x86 64 bit** users, which I suspect will make up the majority of the people reading this. For those who prefer to use Linux, I haven't been able to develop a pipeline for this quite yet (sorry)! If you haven't already, **make sure you have Docker Desktop installed and running**, as it will be needed for the below steps (it is linked at the top of the README)! 
 
 ##### Step 8.1. Modifying the setup file
 
-The first step will be to change one of the parameters of the setup file. If you haven't already, please open up the setup file and **navigate to the final line:**
+The first step will be to change two of the parameters of the setup file. Please open up the setup file and **navigate to these two lines:**
 
+```
+host=localhost
+```
+and
 ```
 useLocalDocker=FALSE
 ```
 
-All you need to do here is **change FALSE to TRUE**. Once you have done this, save the file and close it!
+All you need to do here is change **localhost** to **host.docker.internal** on the first line shown above, and change **FALSE** to **TRUE** on the second. Once you have done this, save the file and close it!
+
+*Note: we originally kept localhost written for the host name, since that would allow the application run in RStudio to connect to the PostgreSQL database. Because we're using docker, that is why we have to change it again!*
 
 ##### Step 8.2. Running the local docker setup file
 
-In the **Setup/forLocalDocker** folder, open LocalDeploymentSetup.R in Rstudio and **source the file**, just like we did previously. Just a warning, **ONLY run this code if you do not plan to use this for Railway or external hosting!** This code will do a few things, but namely:
+In the **Setup/forLocalDocker** folder, you will see two R scripts that are labeled for Mac or Windows. For Mac (Apple Silicon) users, please open and **source the LocalDeploymentSetup_M2Mac.R file in RStudio**, similar to when we ran the first setup script before. If you are a Windows user, you will instead open and **source the LocalDeploymentSetup_Winx86.R file in RStudio**. Just a warning, **ONLY run this code if you do not plan to use this for Railway or external hosting!** These scripts will do a few things, but namely:
 
 - Replaces the current dockerfile (setup for Railway) with one suited for Docker Desktop
+- Adds a new server configuration file to the root directory 
 - Modifies some information in the new dockerfile with database info found in the UserSettings file
-- Runs the Terminal code necessary to create a docker image. (**for non-Mac users, this is likely the code that will need to change for you!**)
+- Runs the Terminal/CMD code necessary to create a docker image.
 
-This code should take a while to run, but once it is complete, you should notice a new image show up in Docker Desktop called **sdm-applciation**.
+This code should take a while to run, but once it is complete, you should notice a new image show up in the Docker Desktop application called **sdm-applciation**.
 
 ##### Step 8.3. Deploying container
 
@@ -203,7 +210,7 @@ To prevent some headaches later, I would recommend making sure that both the Pos
 
 The simplest method for accessing the app would be to navigate to Seed-Database-Manager/Application/ and open **app.R**. In R Studio, there will be a **Run app** button at the top right of the script, which will open a new window with the application interface!
 
-For the docker method, you should be able to access your application by navigating to **localhost:3838** on your web browser, if properly deployed! Please ensure that your browser settings allow for local connections. Just as a ease-of-access tip on Mac, you can drag the URL for **localhost:3838** to your desktop to create a quick shortcut to access the app! 
+For those who completed the docker desktop steps above, you should be able to access your application by navigating to **localhost:3838** on your web browser, if properly deployed! Please ensure that your browser settings allow for local connections. Just as a ease-of-access tip on Mac, you can drag the URL for **localhost:3838** to your desktop to create a quick shortcut to access the app! On windows, you can similarly do this by right-clicking your desktop and **creating a new shortcut** with **localhost:3838 as the shortcut link**.
 
 #### On Railway
 
