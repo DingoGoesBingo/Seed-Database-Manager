@@ -18,7 +18,7 @@ authors:
   orcid: "0000-0002-2290-3257"
   equal-contrib: true
   affiliation: 1
-  bibliography: paper.bib
+bibliography: paper.bib
 ---
 
 # Summary
