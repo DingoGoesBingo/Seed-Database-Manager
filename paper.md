@@ -38,11 +38,3 @@ The Seed Database Manager (SDM) is a database-navigating application developed i
 # Acknowledgements
 
 We thank all the members of the Wang lab who helped test this application from its inception to release and Jason King for contributing code related to database connections. Development of this application was supported by grants to D.R.W. (USDA AFRI #2022-67013-36205 and NSF-PGRP #2102120). 
-
-# References
-
-Jung, S., Lee, T., Gasic, K., Campbell, B. T., Yu, J., Humann, J., Ru, S., Edge-Garza, D., Hough, H., & Main, D. (2021). The Breeding Information Management System (BIMS): An online resource for crop breeding. Database, 2021, baab054. https://doi.org/10.1093/database/baab054
-Morales, N., Ogbonna, A. C., Ellerbrock, B. J., Bauchet, G. J., Tantikanjana, T., Tecle, I. Y., Powell, A. F., Lyon, D., Menda, N., Simoes, C. C., Saha, S., Hosmani, P., Flores, M., Panitz, N., Preble, R. S., Agbona, A., Rabbi, I., Kulakow, P., Peteti, P., … Mueller, L. A. (2022). Breedbase: A digital ecosystem for modern plant breeding. G3 Genes|Genomes|Genetics, 12(7), jkac078. https://doi.org/10.1093/g3journal/jkac078
-Portugal, A., Balachandra, R., Metz, T., Bruskiewich, R., & McLaren, G. (2007). International Crop Information System for Germplasm Data Management. In D. Edwards (Ed.), Plant Bioinformatics: Methods and Protocols (pp. 459–471). Humana Press. https://doi.org/10.1007/978-1-59745-535-0_22
-Shaw, P. D., Raubach, S., Hearne, S. J., Dreher, K., Bryan, G., McKenzie, G., Milne, I., Stephen, G., & Marshall, D. F. (2017). Germinate 3: Development of a Common Platform to Support the Distribution of Experimental Data on Crop Wild Relatives. Crop Science, 57(3), 1259–1273. https://doi.org/10.2135/cropsci2016.09.0814
-Tiwari, A., Tikoo, S. K., Angadi, S. P., Kadaru, S. B., Ajanahalli, S. R., & Vasudeva Rao, M. J. (2022). Germplasm Management in Commercial Plant Breeding Programs. In A. Tiwari, S. K. Tikoo, S. P. Angadi, S. B. Kadaru, S. R. Ajanahalli, & M. J. Vasudeva Rao (Eds.), Market-Driven Plant Breeding for Practicing Breeders (pp. 33–68). Springer Nature. https://doi.org/10.1007/978-981-19-5434-4_2
