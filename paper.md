@@ -38,3 +38,5 @@ The Seed Database Manager (SDM) is a database-navigating application developed i
 # Acknowledgements
 
 We thank all the members of the Wang lab who helped test this application from its inception to release and Jason King for contributing code related to database connections. Development of this application was supported by grants to D.R.W. (USDA AFRI #2022-67013-36205 and NSF-PGRP #2102120). 
+
+# References
