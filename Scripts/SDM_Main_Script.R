@@ -740,14 +740,26 @@ concon = function(){
   
   params = read.table("../Setup/UserSettings.txt", sep = "=")[1:5,1]
   
-  con = dbConnect(
-    RPostgres::Postgres(),
-    dbname = params[1],                           # Database name
-    host = params[2],             # Public host for external connections
-    port = as.numeric(params[3]),                                 # The port from the public network connection
-    user = params[4],                            # Default username
-    password = params[5] # Your password
-  )
+  # Check for SQLite deployment first
+  if(paste(params[2:5], collapse = "_") == "sql_12345_sql_sql"){ 
+  
+    con = dbConnect(
+      RSQLite::SQLite(), # Database name
+      dbname = params[1] # File path to SQLite database
+    )
+    
+  } else {
+    
+    con = dbConnect(
+      RPostgres::Postgres(),
+      dbname = params[1],                           # Database name
+      host = params[2],             # Public host for external connections
+      port = as.numeric(params[3]),                                 # The port from the public network connection
+      user = params[4],                            # Default username
+      password = params[5] # Your password
+    )
+    
+  }
   
   # Check the connection, return database connection if successful.
   

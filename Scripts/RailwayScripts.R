@@ -138,29 +138,54 @@ list_current_users = function(con) {
 ## users to the database  ##
 ############################
 
-add_user = function(con) {
+add_user = function(con, u = NULL, p = NULL, c = NULL) {
   
-  new_username = readline(prompt = "Enter new username: ")
-  
-  # check if the username already exists
-  existing_user = dbGetQuery(con, "SELECT username FROM users WHERE username = $1;", params = list(new_username))
-  
-  if (nrow(existing_user) > 0) {
-    cat("Username already exists. Please choose a different username.\n")
-    return()
-  }
-  
-  repeat {
-    new_password = getPass::getPass("Enter new password: ")
-    confirm_password = getPass::getPass("Confirm new password: ")
+  if(is.null(u) == TRUE && is.null(p) == TRUE && is.null(c) == TRUE){
     
-    if (new_password != confirm_password) {
-      cat("Passwords do not match. Please try again.\n")
-    } else if (nchar(new_password) < 8) {
-      cat("Password must be at least 8 characters long. Please try again.\n")
-    } else {
-      break
+    new_username = readline(prompt = "Enter new username: ")
+    
+    # check if the username already exists
+    existing_user = dbGetQuery(con, "SELECT username FROM users WHERE username = $1;", params = list(new_username))
+    
+    if (nrow(existing_user) > 0) {
+      cat("Username already exists. Please choose a different username.\n")
+      return()
     }
+    
+    repeat {
+      new_password = getPass::getPass("Enter new password: ")
+      confirm_password = getPass::getPass("Confirm new password: ")
+      
+      if (new_password != confirm_password) {
+        cat("Passwords do not match. Please try again.\n")
+      } else if (nchar(new_password) < 8) {
+        cat("Password must be at least 8 characters long. Please try again.\n")
+      } else {
+        break
+      }
+      
+    }
+    
+  } else {
+    
+    new_username = u
+    
+    # check if the username already exists
+    existing_user = dbGetQuery(con, "SELECT username FROM users WHERE username = $1;", params = list(new_username))
+    
+    if (nrow(existing_user) > 0) {
+      cat("Username already exists. Please choose a different username.\n")
+      return(FALSE)
+    }
+    
+    new_password = p; confirm_password = c
+    
+    if(new_password != confirm_password){
+      
+      return(FALSE)
+      
+    }
+    
   }
   
   hashed_password = sodium::password_store(new_password)
@@ -171,4 +196,11 @@ add_user = function(con) {
   ", params = list(new_username, hashed_password))
   
   cat("User", new_username, "added successfully.\n")
+  
+  if(is.null(u) == FALSE && is.null(p) == FALSE && is.null(c) == FALSE){
+    
+    return(TRUE)
+    
+  }
+  
 }
