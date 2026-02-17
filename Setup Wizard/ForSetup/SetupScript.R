@@ -262,6 +262,20 @@ finishSetup = function(dir, l){
     } else if(Sys.info()["sysname"] == "Windows"){
       
       # Create launcher (FOR Windows)
+      deskPath = normalizePath(file.path(Sys.getenv("USERPROFILE"),"Desktop"))
+      
+      if(dir.exists(deskPath) == FALSE){
+        
+        deskPath = normalizePath(file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Desktop"))
+        
+      }
+      
+      batFile = normalizePath(file.path(deskPath, "SeedDatabaseManager.bat"))
+      
+      scriptCode = c("@echo off", paste("pushd ", "\"", dir, "\"", sep = ""),
+                     paste("\"", normalizePath(file.path(R.home("bin"), "Rscript.exe")), "\"", " runapp.R", sep = ""), 
+                     "")
+      writeLines(scriptCode, batFile)
       
     } else {
       
@@ -275,59 +289,107 @@ finishSetup = function(dir, l){
     
     if(l$step3$remoteOption == "di"){
       
-      showNotification("Stopping docker daemon...", type = "message", duration = 10)
-      system("pkill -f Docker")
-      Sys.sleep(10)
-      
-      showNotification("Starting docker daemon...", type = "message", duration = 30)
-      system("open -a Docker")
-      Sys.sleep(30)
-      
-      # Need to check if Docker is open, if not, try to open it again.
-      testLog = TRUE; logCount = 1
-      
-      while(testLog == TRUE && logCount <= 5){
+      if(Sys.info()["sysname"] == "Darwin"){
         
-        test = system2(Sys.which("docker"), "info", stdout = TRUE, stderr = TRUE)
+        showNotification("Stopping docker daemon...", type = "message", duration = 10)
+        system("pkill -f Docker")
+        Sys.sleep(10)
         
-        testLog = grepl("Cannot connect to the Docker daemon", test[47])
-        
+        showNotification("Starting docker daemon...", type = "message", duration = 30)
+        system("open -a Docker")
         Sys.sleep(30)
         
-        # Try to open Docker again if it isn't open
-        if(testLog == TRUE){
+        # Need to check if Docker is open, if not, try to open it again.
+        testLog = TRUE; logCount = 1
+        
+        while(testLog == TRUE && logCount <= 5){
           
-          system("open -a Docker")
+          test = system2(Sys.which("docker"), "info", stdout = TRUE, stderr = TRUE)
+          
+          testLog = grepl("Cannot connect to the Docker daemon", test[47])
+          
+          Sys.sleep(30)
+          
+          # Try to open Docker again if it isn't open
+          if(testLog == TRUE){
+            
+            system("open -a Docker")
+            
+          }
+          
+          logCount = logCount + 1
           
         }
         
-        logCount = logCount + 1
-         
+        if(testLog == TRUE && logCount > 5){
+          
+          showNotification("Could not start Docker Desktop. Is it installed correctly?", type = "error")
+          return()
+          
+        }
+        
+        rm(test); rm(testLog); rm(logCount)
+        
+        setwd("..")
+        
+        showNotification("Building dockerfile... This will take several minutes!", type = "message", duration = 60)
+        
+        if(Sys.info()["sysname"] != "Windows"){
+          
+          system2(Sys.which("docker"), c("build", "--platform=linux/amd64", "-t", "sdmapp", "."))
+          
+        }
+        
+        setwd("..")
+        
+        showNotification("Docker image has been saved to your specified directory from Step 2!", type = "message")
+        system2(Sys.which("docker"), c("save", "-o", paste("\"", file.path(getwd(), "sdmapp.tar"), "\"", sep = ""), "sdmapp"))
+        
+      } else if (Sys.info()["sysname"] == "Windows"){
+        
+        testCount = 1; dockerOpen = FALSE
+        
+        while(testCount <= 5 && dockerOpen == FALSE){
+          
+          showNotification(paste("Attempting to connect with docker daemon...", " (", testCount, ")", sep = ""), type = "message")
+          test = tryCatch({system2(Sys.which("docker"), "info", stdout = TRUE, stderr = TRUE)})
+          
+          if(!is.null(test) && any(grepl("Server:", test))){
+            
+            dockerOpen = TRUE
+            
+          } else {
+            
+            showNotification("Docker daemon connection unsuccessful. Please make sure Docker Desktop is open and running! Another attempt will be made in 30 seconds", type = "warning", duration = 30)
+            Sys.sleep(30)
+            
+          }
+          
+          testCount = testCount + 1
+          
+        }
+        
+        if(testCount > 5 && dockerOpen == FALSE){
+          
+          showNotification("Could not start Docker Desktop. Is it installed correctly?", type = "error", duration = 30)
+          return()
+          
+        }
+        
+        rm(test); rm(testCount); rm(dockerOpen)
+        
+        setwd("..")
+        
+        showNotification("Building dockerfile... This will take several minutes!", type = "message", duration = 60)
+        
+        system2(Sys.which("docker"), c("build", "-t", "sdmapp", "."))
+        
+        setwd("..")
+        
+        system2(Sys.which("docker"), c("save", "-o", paste("\"", file.path(getwd(), "sdmapp.tar"), "\"", sep = ""), "sdmapp"))
+        showNotification("Docker image has been saved to your specified directory from Step 2!", type = "message")
+        
       }
-      
-      if(testLog == TRUE && logCount > 5){
-        
-        showNotification("Could not start Docker Desktop. Is it installed correctly?", type = "error")
-        return()
-        
-      }
-      
-      rm(test); rm(testLog); rm(logCount)
-      
-      setwd("..")
-      
-      showNotification("Building dockerfile... This will take several minutes!", type = "message", duration = 60)
-      
-      if(Sys.info()["sysname"] != "Windows"){
-        
-        system2(Sys.which("docker"), c("build", "--platform=linux/amd64", "-t", "sdmapp", "."))
-        
-      }
-      
-      setwd("..")
-      
-      showNotification("Docker image has been saved to your specified directory from Step 2!", type = "message")
-      system2(Sys.which("docker"), c("save", "-o", file.path(getwd(), "sdmapp.tar"), "sdmapp"))
       
     } else if(l$step3$remoteOption == "gh"){
       

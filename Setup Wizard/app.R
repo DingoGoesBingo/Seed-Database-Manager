@@ -1,5 +1,14 @@
 # Install required packages and load scripts!
 
+if(!require(shiny)){install.packages("shiny")}
+if(!require(shinyjs)){install.packages("shinyjs")}
+if(!require(shinythemes)){install.packages("shinythemes")}
+if(!require(shinyalert)){install.packages("shinyalert")}
+if(!require(stringr)){install.packages("stringr")}
+if(!require(ggplot2)){install.packages("ggplot2")}
+if(!require(DT)){install.packages("DT")}
+if(!require(officer)){install.packages("officer")}
+
 library(bslib)
 library(shiny)
 library(shinyjs)
@@ -316,7 +325,16 @@ server = function(input, output, session) {
   
   # Step 3: Provide database information ----
   
-  roots = c(Home = "~") 
+  if(Sys.info()["sysname"] == "Windows"){
+
+    roots = c(Home = fs::path_home(), Drives = getVolumes()())
+    
+  } else {
+    
+    roots = c(Home = "~") 
+    
+  }
+  
   shinyDirChoose(input, "sqliteDir", roots = roots, session = session)
   
   output$folder_path = renderPrint({
