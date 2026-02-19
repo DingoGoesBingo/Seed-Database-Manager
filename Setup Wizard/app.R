@@ -1,5 +1,6 @@
 # Install required packages and load scripts!
 
+if(!require(bslib)){install.packages("bslib")}
 if(!require(shiny)){install.packages("shiny")}
 if(!require(shinyjs)){install.packages("shinyjs")}
 if(!require(shinythemes)){install.packages("shinythemes")}
@@ -8,6 +9,12 @@ if(!require(stringr)){install.packages("stringr")}
 if(!require(ggplot2)){install.packages("ggplot2")}
 if(!require(DT)){install.packages("DT")}
 if(!require(officer)){install.packages("officer")}
+
+if(!require(pak)){install.packages("pak")}
+if(!require(getPass)){install.packages("getPass")}
+if(!require(sodium)){install.packages("sodium")}
+if(!require(RPostgres)){install.packages("RPostgres")}
+if(!require(DBI)){install.packages("DBI")}
 
 library(bslib)
 library(shiny)
