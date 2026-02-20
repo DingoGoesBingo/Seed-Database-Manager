@@ -11,19 +11,16 @@ Deploying the tool for yourself is fairly straight-forward! Please follow the st
 
 There are a few things that are needed before you get started:
 - A GitHub account
-- RStudio desktop client, required to run set-up code.
-- I would also recommend GitHub desktop, so that it's easy to push changes during the set-up.
+- Download [Base R & RStudio desktop client](https://posit.co/download/rstudio-desktop/), required to run set-up code.
 
 #### If you plan to run the tool locally off your machine...
-- Install PostgreSQL to your device (https://www.postgresql.org/download/)
-- Install Docker Desktop, if you plan on running the app from a local container (https://www.docker.com/products/docker-desktop/)
+- No other prerequisites!
 
 #### If you plan to run the tool via external hosting platforms...
-- Access to any platform that can host Shiny R applications and PostgreSQL databases, **I'd recommend Railway** (https://railway.com/) if your institution does not have it's own platform, since it connects directly to the github repo and is inexpensive to continually run.
+- [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) *if* you plan to run via a Docker image (used by most hosting platforms).
+- [Download GitHub Desktop](https://desktop.github.com/download/) *if* you plan on hosting via external platforms that deploy directly from GitHub (such as Railway).
 
-**For the sake of this README, I will assume that you are using Railway for external hosting, but the steps will largely remain the same.**
-
-### Step 2. Derive your own private copy of the tool
+### Step 2. Download the files from Zenodo or GitHub
 
 On this GitHub page, click on the green **Use this template** drop-down button, and **create a new repository using this repo as the template**. When creating the new reposity, make sure you set visibility to private, otherwise your **database will be visible to the public**! After you have donw this, I would recommend using the GitHub desktop client to download the files onto your local system, since we will need to make some modifications and run some set-up code. If you plan on using Railway (recommended), this repo will be where Railway retrieves all app data from!
 
